@@ -7,9 +7,19 @@ class User < ActiveRecord::Base
 	validates_length_of :bio, minimum: 30, allow_blank: false
 	validates_uniqueness_of :email
 
+	scope :confirmed, -> { where.not(confirmed_at: nil)}
+
 	validate :email_format
 
 	has_secure_password
+
+
+	def self.authenticate(email, password)
+		user = confirmed.find_by(email: email).
+							try(:authenticate, password)
+
+	end
+
 
 	private
 	# Validação poderia ser representada da seguinte forma:
@@ -18,4 +28,6 @@ class User < ActiveRecord::Base
 		errors.add(:email, :invalid) unless email.match(EMAIL_REGEXP)
 			
 	end
+
+
 end
